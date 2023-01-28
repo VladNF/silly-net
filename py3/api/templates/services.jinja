@@ -1,0 +1,12 @@
+{{imports}}
+
+
+{% for operation in operations %}
+def {{operation.function_name}}({{operation.snake_case_arguments}}) -> {{operation.response}}:
+    {%- if operation.summary %}
+    """
+    {{ operation.summary }}
+    """
+    {%- endif %}
+    pass
+{% endfor %}

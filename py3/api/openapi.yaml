@@ -1,0 +1,213 @@
+openapi: 3.0.0
+info:
+  title: Highload Research Project -- Social Network
+  version: 0.1.0
+servers:
+  - url: https://{hostname}/
+    variables:
+      hostname:
+        default: localhost
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      description: >
+        Упрощенный процесс аутентификации путем передачи email пользователя и 
+        получения токена для дальнейшего прохождения аутентификации
+      operationId: userLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: ivan@email.com
+                password:
+                  type: string
+                  format: password
+                  example: qwerty
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: e4d2e6b0cde242c5aac30b8316f21e58
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '5XX':
+          description: Unexpected error
+  /auth/signup:
+    post:
+      operationId: userSignUp
+      description: Регистрация нового пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '5XX':
+          description: Unexpected error
+  /users/{id}:
+    get:
+      operationId: getUser
+      description: Получение профиля пользователя
+      parameters:
+        - name: id
+          schema:
+            type: string
+            description: Идентификатор пользователя
+            example: e4d2e6b0cde242c5aac30b8316f21e58
+          required: true
+          in: path
+          description: Идентификатор пользователя
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '5XX':
+          description: Unexpected error
+  /users/:
+    get:
+      operationId: listUsers
+      description: Поиск профилей пользователя
+      parameters:
+        - name: filters
+          in: query
+          style: form
+          explode: true
+          schema:
+            $ref: '#/components/schemas/ListUsersRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '5XX':
+          description: Unexpected error
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    5xx:
+      description: Ошибка сервера
+      headers:
+        Retry-After:
+          description: Время, через которое еще раз нужно сделать запрос
+          required: false
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Описание ошибки
+              request_id:
+                type: string
+                description: Идентификатор запроса. Предназначен для более быстрого поиска проблем.
+              code:
+                type: integer
+                description: Код ошибки. Предназначен для классификации проблем и более быстрого решения проблем.
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор пользователя
+          readOnly: true
+        email:
+          type: string
+          format: email
+          example: ivan@email.com
+          description: Адрес электронной почты
+        first_name:
+          type: string
+          example: Иван
+          description: Имя
+        last_name:
+          type: string
+          example: Иванов
+          description: Фамилия
+        age:
+          type: integer
+          example: 18
+          description: Возраст
+        biography:
+          type: string
+          example: Хобби, интересы и т.п.
+          description: Интересы
+        city:
+          type: string
+          example: Москва
+          description: Город
+        password:
+          type: string
+          format: password
+          example: qwerty
+          writeOnly: true
+    ListUsersRequest:
+      type: object
+      required: []
+      properties:
+        first_name:
+          type: string
+          example: Конст
+          description: Условие поиска по имени
+        last_name:
+          type: string
+          example: Оси
+          description: Условие поиска по фамилии
+        offset:
+          type: integer
+          description: Начало страницы результата
+          default: 0
+        limit:
+          type: integer
+          description: Размер страницы результата
+          default: 20
