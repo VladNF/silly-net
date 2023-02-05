@@ -9,6 +9,13 @@ readme = "README.md"
 python = "^3.9"
 fastapi = "^0.89.1"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
+yoyo-migrations = "^8.2.0"
+psycopg2-binary = "^2.9.5"
+environs = "^9.5.0"
+asyncpg = "^0.27.0"
+pyjwt = "^2.6.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pydantic = {extras = ["email"], version = "^1.10.4"}
 
 
 [tool.poetry.group.dev.dependencies]

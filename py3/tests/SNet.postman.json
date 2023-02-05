@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "68716e17-c60e-4b95-b1c0-f9a6d831f5f1",
+		"name": "SNet",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SignUp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"j@VladNF.ru\",\n    \"first_name\": \"Vlad\",\n    \"last_name\": \"NF\",\n    \"age\": 42,\n    \"bio\": \"somewhere in the deep space\",\n    \"city\": \"NF\",\n    \"password\": \"424242\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/auth/signup",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"i@VladNF.ru\",\n    \"password\": \"424242\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/auth/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Users",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTE2OTQ5OTIwNzg0NzA4YmNlOTM0ZDdmMjU2ZGUyZCIsImlhdCI6MTY3NTYwNDc5NSwiZXhwIjoxNjc2MDM2Nzk1fQ.v_u58GhRgVk3RquC1hn7MuSZ9VaDk5UFkHYQZB5UvhQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/users?first_name=vlad&last_name=n&limit=5&offset=0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "first_name",
+							"value": "vlad"
+						},
+						{
+							"key": "last_name",
+							"value": "n"
+						},
+						{
+							"key": "limit",
+							"value": "5"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTE2OTQ5OTIwNzg0NzA4YmNlOTM0ZDdmMjU2ZGUyZCIsImlhdCI6MTY3NTYwNDc5NSwiZXhwIjoxNjc2MDM2Nzk1fQ.v_u58GhRgVk3RquC1hn7MuSZ9VaDk5UFkHYQZB5UvhQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/users/6516949920784708bce934d7f256de2d",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"users",
+						"6516949920784708bce934d7f256de2d"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

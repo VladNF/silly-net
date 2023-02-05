@@ -8,9 +8,6 @@ build:
 	docker-compose build
 
 up:
-	docker-compose up -d && docker-compose stop app
-
-up-all: build
 	docker-compose up -d
 
 down:
@@ -21,6 +18,15 @@ update-deps:
 	poetry export -o vendor/prod.txt --without-hashes
 
 gen-views:
-	fastapi-codegen -i api/openapi.yaml -o app/views -t api/templates
+	fastapi-codegen -i api/http.yaml -o app/views -t api/templates
+
+db-migrate:
+	export $(cat .env | xargs) && yoyo apply
+
+db-recreate:
+	export $(cat .env | xargs) && yoyo develop
+
+new-migration:
+	export $(cat .env | xargs) && yoyo new --sql
 
 .PHONY: up-all
