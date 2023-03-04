@@ -1,3 +1,5 @@
+ENVS := $(shell cat .env)
+
 test: up
 	-pytest
 
@@ -21,12 +23,24 @@ gen-views:
 	fastapi-codegen -i api/http.yaml -o app/views -t api/templates
 
 db-migrate:
-	export $(cat .env | xargs) && yoyo apply
+	@$(ENVS) yoyo apply
 
 db-recreate:
-	export $(cat .env | xargs) && yoyo develop
+	@$(ENVS) yoyo develop
 
 new-migration:
-	export $(cat .env | xargs) && yoyo new --sql
+	@$(ENVS) yoyo new --sql
 
-.PHONY: up-all
+new-migration-python:
+	@$(ENVS) yoyo new
+
+list-migrations:
+	@$(ENVS) yoyo list
+
+import-people:
+	@$(ENVS) python -m tests.import
+
+run-locust:
+	@$(ENVS) locust -f tests/load.py
+
+.PHONY: up

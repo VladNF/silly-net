@@ -24,7 +24,11 @@ class User(BaseModel):
 
 
 class SignUpRequest(User):
-    password: Optional[SecretStr] = Field(None, example='qwerty')
+    password: SecretStr = Field(..., example='qwerty')
+
+
+class SignUpResponse(User):
+    token: str = Field(..., example='e4d2e6b0cde242c5aac30b8316f21e58')
 
 
 class ListUsersRequest(BaseModel):

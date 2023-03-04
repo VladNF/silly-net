@@ -1,11 +1,11 @@
 from abc import ABCMeta, abstractmethod
-from dataclasses import dataclass, field as f
+
+from pydantic import BaseModel, Field as f
 
 from .unique import make_unique_id
 
 
-@dataclass
-class User:
+class User(BaseModel):
     user_id: str = f(default_factory=make_unique_id)
     email: str = f(default=None)
     first_name: str = f(default=None)
@@ -37,4 +37,8 @@ class Repository(metaclass=ABCMeta):
 
     @abstractmethod
     async def put(self, user: User):
+        raise NotImplementedError
+
+    @abstractmethod
+    async def put_multi(self, users: list[User]):
         raise NotImplementedError

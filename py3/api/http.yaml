@@ -154,12 +154,21 @@ components:
       allOf:
         - $ref: '#/components/schemas/User'
         - type: object
-          required: [ user password ]
+          required: [ password ]
           properties:
             password:
               type: string
               format: password
               example: qwerty
+    SignUpResponse:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          required: [ token ]
+          properties:
+            token:
+              type: string
+              example: e4d2e6b0cde242c5aac30b8316f21e58
     ListUsersRequest:
       type: object
       required: []

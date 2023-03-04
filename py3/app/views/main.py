@@ -1,9 +1,9 @@
 import uvicorn
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import FastAPI, Depends
 
 from . import services
-from .models import ListUsersRequest, LoginRequest, LoginResponse, SignUpRequest, User
+from .auth import get_current_user
+from .models import ListUsersRequest, LoginRequest, LoginResponse, SignUpRequest, SignUpResponse, User
 
 app = FastAPI(
     title="Highload Research Project -- Social Network",
@@ -16,22 +16,6 @@ app = FastAPI(
     ],
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        claims = services.decode_token(token)
-    except ValueError:
-        raise credentials_exception
-
-    return claims.user_id
-
 
 @app.post("/auth/login", response_model=LoginResponse)
 async def user_login(body: LoginRequest = None) -> LoginResponse:
@@ -40,8 +24,8 @@ async def user_login(body: LoginRequest = None) -> LoginResponse:
     )
 
 
-@app.post("/auth/signup", response_model=User)
-async def user_sign_up(body: SignUpRequest = None) -> User:
+@app.post("/auth/signup", response_model=SignUpResponse)
+async def user_sign_up(body: SignUpRequest = None) -> SignUpResponse:
     return await services.user_sign_up(
         body,
     )
