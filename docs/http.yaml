@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Highload Research Project -- Social Network
+  title: Silly Net
   version: 0.1.0
 servers:
   - url: https://{hostname}/
