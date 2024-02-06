@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: services-python-front
+  labels:
+    app: services-python-front
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  clusterIP: None
+  selector:
+    app: services-python-front
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: services-python-front
+  labels:
+    app: services-python-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: services-python-front
+  template:
+    metadata:
+      labels:
+        app: services-python-front
+    spec:
+      containers:
+      - name: services-python-front
+        image: services-python-front

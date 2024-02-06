@@ -1,0 +1,25 @@
+apiVersion: skaffold/v4beta9
+kind: Config
+metadata:
+  name: silly-net
+build:
+  artifacts:
+    - image: services-db
+      context: services/db
+      docker:
+        dockerfile: Dockerfile
+    - image: services-python-front
+      context: services/python/front
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - services/db/deployment.yaml
+    - services/python/front/deployment.yaml
+portForward:
+  - resourceType: service
+    resourceName: services-db
+    port: 5432
+  - resourceType: service
+    resourceName: services-python-front
+    port: 8080
