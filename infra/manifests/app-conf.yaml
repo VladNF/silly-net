@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: snet
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: snet
+data:
+  db_host: "db-service.snet.svc.cluster.local"
+  db_user: "postgres"
+  db_password: "postgres"
+  db_name: "snet"
+  db_port: "5432"
+  jwt_algo: "HS256"
+  jwt_private_key: "424342"
+  jwt_public_key: "424342"
+  jwt_exp_in_days: "5"

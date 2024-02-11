@@ -33,11 +33,11 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8000/auth/signup",
+					"raw": "localhost:8080/auth/signup",
 					"host": [
 						"localhost"
 					],
-					"port": "8000",
+					"port": "8080",
 					"path": [
 						"auth",
 						"signup"
@@ -74,11 +74,11 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8000/auth/login",
+					"raw": "localhost:8080/auth/login",
 					"host": [
 						"localhost"
 					],
-					"port": "8000",
+					"port": "8080",
 					"path": [
 						"auth",
 						"login"
@@ -93,14 +93,71 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8000/users/?first_name=vlad&last_name=n&limit=5&offset=0",
+					"raw": "localhost:8080/users/?first_name=%D1%88%D1%82%D1%82&last_name=%D1%8C%D1%84%D1%87%D1%89%D0%BE%D1%82%D1%8D",
 					"host": [
 						"localhost"
 					],
-					"port": "8000",
+					"port": "8080",
 					"path": [
 						"users",
 						""
+					],
+					"query": [
+						{
+							"key": "first_name",
+							"value": "%D1%88%D1%82%D1%82"
+						},
+						{
+							"key": "last_name",
+							"value": "%D1%8C%D1%84%D1%87%D1%89%D0%BE%D1%82%D1%8D"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/users/1e560c7036eb434a97c2cdc4851796b5",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users",
+						"1e560c7036eb434a97c2cdc4851796b5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Users Paging",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTE2OTQ5OTIwNzg0NzA4YmNlOTM0ZDdmMjU2ZGUyZCIsImlhdCI6MTY3NTYwMzc1NiwiZXhwIjoxNjc1MTcxNzU2fQ.57cHcKKChEnxMxrLcl0v8_1vNTgcHpfTL1PwgEEU3CI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/users?first_name=vlad&last_name=n&limit=5&offset=0",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users"
 					],
 					"query": [
 						{
@@ -119,25 +176,6 @@
 							"key": "offset",
 							"value": "0"
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get User",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:8000/users/6516949920784708bce934d7f256de2d",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"users",
-						"6516949920784708bce934d7f256de2d"
 					]
 				}
 			},

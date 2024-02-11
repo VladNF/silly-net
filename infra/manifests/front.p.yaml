@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: snet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-p
+  namespace: snet
+  labels:
+    app: front-p
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-p
+  template:
+    metadata:
+      labels:
+        app: front-p
+    spec:
+      containers:
+        - name: front-p
+          image: front-p
+          command: ["uvicorn", "app.views.main:app", "--host", "0.0.0.0", "--port", "8080"]
+          ports:
+            - name: front-p
+              containerPort: 8080
+
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
+          readinessProbe: # readiness probes mark the service available to accept traffic.
+            httpGet:
+              path: /readiness
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+
+          livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
+            httpGet:
+              path: /liveness
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+
+          env:
+            - name: POSTGRES_USER # here as an example for configuring a hosted db.
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: db_user
+                  optional: true
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: db_password
+                  optional: true
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: db_name
+                  optional: true
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: db_host
+                  optional: true
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: db_port
+                  optional: true
+            - name: JWT_ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: jwt_algo
+                  optional: true
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: jwt_private_key
+                  optional: true
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: jwt_public_key
+                  optional: true
+            - name: JWT_EXP_IN_DAYS
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: jwt_exp_in_days
+                  optional: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-service
+  namespace: snet
+  labels:
+    app: front-p
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+  clusterIP: None
+  selector:
+    app: front-p

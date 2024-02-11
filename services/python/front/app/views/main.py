@@ -17,6 +17,16 @@ app = FastAPI(
 )
 
 
+@app.get("/liveness")
+async def liveness() -> str:
+    return "ok"
+
+
+@app.get("/readiness")
+async def rediness() -> str:
+    return "ok"
+
+
 @app.post("/auth/login", response_model=LoginResponse)
 async def user_login(body: LoginRequest = None) -> LoginResponse:
     return await services.user_login(
@@ -48,4 +58,4 @@ async def get_user(id: str, _: str = Depends(get_current_user)) -> User:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)

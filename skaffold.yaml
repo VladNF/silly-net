@@ -4,22 +4,22 @@ metadata:
   name: silly-net
 build:
   artifacts:
-    - image: services-db
+    - image: db-migration
       context: services/db
-      docker:
-        dockerfile: Dockerfile
-    - image: services-python-front
+    - image: front-p
       context: services/python/front
-      docker:
-        dockerfile: Dockerfile
 manifests:
   rawYaml:
-    - services/db/deployment.yaml
-    - services/python/front/deployment.yaml
+    - infra/manifests/app-conf.yaml
+    - infra/manifests/db.yaml
+    - infra/manifests/front.p.yaml
+    - infra/manifests/db-migrate.yaml
 portForward:
   - resourceType: service
-    resourceName: services-db
+    resourceName: db-service
+    namespace: snet
     port: 5432
   - resourceType: service
-    resourceName: services-python-front
+    resourceName: front-service
+    namespace: snet
     port: 8080
