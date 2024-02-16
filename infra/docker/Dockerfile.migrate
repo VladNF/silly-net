@@ -1,0 +1,7 @@
+FROM python:3.11.8-alpine3.19
+RUN pip install psycopg2-binary yoyo-migrations==8.2.0
+COPY ./services/db/migrations /yoyo/migrations
+COPY ./services/db/yoyo.ini /yoyo
+COPY ./services/db/migrate.sh /yoyo
+COPY ./services/db/rollback.sh /yoyo
+WORKDIR /yoyo

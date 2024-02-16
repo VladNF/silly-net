@@ -17,7 +17,7 @@ spec:
       restartPolicy: Never
       initContainers:
         - name: init-data-migration
-          image: busybox
+          image: alpine:3.19
           env:
             - name: POSTGRES_HOST
               valueFrom:
@@ -39,7 +39,7 @@ spec:
             ]
       containers:
         - name: db-migration
-          image: db-migration
+          image: migrate-image
           command: ["sh", "migrate.sh"]
           env:
             - name: POSTGRES_USER

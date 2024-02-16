@@ -39,7 +39,7 @@ spec:
             ]
       containers:
         - name: db-migration
-          image: db-migration
+          image: snet-api-migrate
           command: ["sh", "rollback.sh"]
           env:
             - name: POSTGRES_USER

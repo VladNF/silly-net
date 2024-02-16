@@ -20,9 +20,11 @@ spec:
       labels:
         app: front-p
     spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
       containers:
         - name: front-p
-          image: front-p
+          image: front-api-image
           command: ["uvicorn", "app.views.main:app", "--host", "0.0.0.0", "--port", "8080"]
           ports:
             - name: front-p
@@ -116,12 +118,11 @@ kind: Service
 metadata:
   name: front-service
   namespace: snet
-  labels:
-    app: front-p
 spec:
-  ports:
-    - port: 8080
-      protocol: TCP
-  clusterIP: None
+  type: ClusterIP
   selector:
     app: front-p
+  ports:
+    - name: front-p
+      port: 8080
+      targetPort: front-p
