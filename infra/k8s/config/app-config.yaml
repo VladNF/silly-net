@@ -13,3 +13,5 @@ data:
   jwt_private_key: "424342"
   jwt_public_key: "424342"
   jwt_exp_in_days: "5"
+  front_host: "front-service.snet.svc.cluster.local"
+  front_port: "8080"

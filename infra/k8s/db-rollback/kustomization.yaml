@@ -3,3 +3,7 @@ kind: Kustomization
 resources:
   - ./db-rollback.yaml
   - ../config/
+images:
+  - name: migrate-image
+    newName: vladnf/snet/snet-api-migrate
+    newTag: 0.0.1

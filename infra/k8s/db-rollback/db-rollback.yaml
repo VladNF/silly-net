@@ -39,7 +39,7 @@ spec:
             ]
       containers:
         - name: db-migration
-          image: snet-api-migrate
+          image: migrate-image
           command: ["sh", "rollback.sh"]
           env:
             - name: POSTGRES_USER
@@ -73,4 +73,4 @@ spec:
                   key: db_port
                   optional: true
             - name: ROLLBACK_REVISION
-              value: 20230304_01_search_index
+              value: "$ROLLBACK_REVISION"

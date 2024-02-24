@@ -31,8 +31,6 @@ spec:
       labels:
         app: db
     spec:
-      dnsPolicy: ClusterFirstWithHostNet
-      hostNetwork: true
       terminationGracePeriodSeconds: 60
       volumes:
         - name: data

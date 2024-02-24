@@ -20,8 +20,6 @@ spec:
       labels:
         app: front-p
     spec:
-      dnsPolicy: ClusterFirstWithHostNet
-      hostNetwork: true
       containers:
         - name: front-p
           image: front-api-image
@@ -119,7 +117,6 @@ metadata:
   name: front-service
   namespace: snet
 spec:
-  type: ClusterIP
   selector:
     app: front-p
   ports:

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-service
+  namespace: snet
+
+spec:
+  type: NodePort
+  ports:
+  - name: front-p
+    port: 8080
+    targetPort: front-p
+    nodePort: 30001

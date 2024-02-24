@@ -21,6 +21,7 @@ PROMTAIL        := grafana/promtail:2.9.0
 KIND_CLUSTER    := snet
 NAMESPACE       := snet
 APP_FRONT       := front-p
+APP_LOAD_AGENT  := load-agent
 BASE_IMAGE_NAME := vladnf/snet
 SERVICE_NAME    := snet-api
 VERSION         := 0.0.1
@@ -57,7 +58,7 @@ pull-images:
 # ==============================================================================
 # Building containers
 
-build-images: service metrics migration
+build-images: service metrics migration load-agent
 
 service:
 	docker build \
@@ -74,6 +75,14 @@ migration:
 	docker build \
 		-f infra/docker/Dockerfile.migrate \
 		-t $(MIGRATE_IMAGE) \
+		--build-arg BUILD_REF=$(VERSION) \
+		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+		.
+
+load-agent:
+	docker build \
+		-f infra/docker/Dockerfile.locust \
+		-t $(LOAD_AGENT_IMAGE) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		.
@@ -110,16 +119,30 @@ app-load:
 	kind load docker-image $(SERVICE_IMAGE) --name $(KIND_CLUSTER)
 #	kind load docker-image $(METRICS_IMAGE) --name $(KIND_CLUSTER)
 	kind load docker-image $(MIGRATE_IMAGE) --name $(KIND_CLUSTER)
+	kind load docker-image $(LOAD_AGENT_IMAGE) --name $(KIND_CLUSTER)
 
 app-apply:
 	kustomize build infra/k8s/pg-db | kubectl apply -f -
 	kubectl rollout status --namespace=$(NAMESPACE) --watch --timeout=60s sts/db
 
-	kustomize build infra/k8s/db-migrate | kubectl apply -f -
-	kubectl wait jobs --namespace=$(NAMESPACE) --selector app=db-migration-job  --timeout=30s --for=condition=complete
-
 	kustomize build infra/k8s/front | kubectl apply -f -
 	kubectl wait pods --namespace=$(NAMESPACE) --selector app=$(APP_FRONT) --timeout=30s --for=condition=Ready
+
+	kustomize build infra/k8s/load-agent | kubectl apply -f -
+	kubectl wait pods --namespace=$(NAMESPACE) --selector app=$(APP_LOAD_AGENT) --timeout=30s --for=condition=Ready
+
+app-migrate:
+	-kubectl delete job db-migration-job -n snet
+	kustomize build infra/k8s/db-migrate | kubectl apply -f -
+	kubectl wait jobs --namespace=$(NAMESPACE) --selector app=db-migration-job  --timeout=300s --for=condition=complete
+	kubectl logs jobs/db-migration-job -n snet
+
+app-rollback:
+	@echo "DB Revision: $(db-revision)"
+	-kubectl delete job db-rollback-job -n snet
+	kustomize build infra/k8s/db-rollback | ROLLBACK_REVISION=$(db-revision) envsubst | kubectl apply -f -
+	kubectl wait jobs --namespace=$(NAMESPACE) --selector app=db-rollback-job  --timeout=300s --for=condition=complete
+	kubectl logs jobs/db-rollback-job -n snet
 
 app-restart:
 	kubectl rollout restart deployment $(APP_FRONT) --namespace=$(NAMESPACE)

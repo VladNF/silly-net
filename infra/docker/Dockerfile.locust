@@ -1,6 +1,5 @@
 FROM python:3.11.8-alpine3.19
+RUN apk add gcc python3-dev musl-dev linux-headers
 RUN pip install locust==2.15.0
-COPY ./migrations /yoyo/migrations
-COPY ./yoyo.ini /yoyo
-COPY ./migrate.sh /yoyo
-WORKDIR /yoyo
+COPY ./services/python/load_agent /load_agent
+WORKDIR /load_agent
