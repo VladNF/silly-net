@@ -17,6 +17,8 @@ PROMETHEUS      := prom/prometheus:v2.48.0
 TEMPO           := grafana/tempo:2.3.0
 LOKI            := grafana/loki:2.9.0
 PROMTAIL        := grafana/promtail:2.9.0
+PG-EXPORTER     := quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+NODE-EXPORTER   := quay.io/prometheus/node-exporter:v1.7.0
 
 KIND_CLUSTER    := snet
 NAMESPACE       := snet
@@ -26,7 +28,6 @@ BASE_IMAGE_NAME := vladnf/snet
 SERVICE_NAME    := snet-api
 VERSION         := 0.0.1
 SERVICE_IMAGE   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME):$(VERSION)
-METRICS_IMAGE   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME)-metrics:$(VERSION)
 MIGRATE_IMAGE   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME)-migrate:$(VERSION)
 LOAD_AGENT_IMAGE   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME)-load-agent:$(VERSION)
 
@@ -53,12 +54,14 @@ pull-images:
 	docker pull $(TEMPO)
 	docker pull $(LOKI)
 	docker pull $(PROMTAIL)
+	docker pull $(PG-EXPORTER)
+	docker pull $(NODE-EXPORTER)
 
 
 # ==============================================================================
 # Building containers
 
-build-images: service metrics migration load-agent
+build-images: service migration load-agent
 
 service:
 	docker build \
@@ -67,9 +70,6 @@ service:
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		.
-
-metrics:
-	echo "Not implemented yet"
 
 migration:
 	docker build \
@@ -104,6 +104,8 @@ k8s-up: pull-images
 	kind load docker-image $(TEMPO) --name $(KIND_CLUSTER)
 	kind load docker-image $(LOKI) --name $(KIND_CLUSTER)
 	kind load docker-image $(PROMTAIL) --name $(KIND_CLUSTER)
+	kind load docker-image $(PG-EXPORTER) --name $(KIND_CLUSTER)
+	kind load docker-image $(NODE-EXPORTER) --name $(KIND_CLUSTER)
 
 k8s-down:
 	kind delete cluster --name $(KIND_CLUSTER)
@@ -115,13 +117,19 @@ k8s-status:
 
 # ------------------------------------------------------------------------------
 
-app-load:
+app-load: build-images
 	kind load docker-image $(SERVICE_IMAGE) --name $(KIND_CLUSTER)
-#	kind load docker-image $(METRICS_IMAGE) --name $(KIND_CLUSTER)
 	kind load docker-image $(MIGRATE_IMAGE) --name $(KIND_CLUSTER)
 	kind load docker-image $(LOAD_AGENT_IMAGE) --name $(KIND_CLUSTER)
 
 app-apply:
+	kustomize build infra/k8s/grafana | kubectl apply -f -
+	kustomize build infra/k8s/prometheus | kubectl apply -f -
+	kustomize build infra/k8s/tempo | kubectl apply -f -
+	kustomize build infra/k8s/loki | kubectl apply -f -
+	kustomize build infra/k8s/promtail | kubectl apply -f -
+	kustomize build infra/k8s/prom-exporters | kubectl apply -f -
+
 	kustomize build infra/k8s/pg-db | kubectl apply -f -
 	kubectl rollout status --namespace=$(NAMESPACE) --watch --timeout=60s sts/db
 

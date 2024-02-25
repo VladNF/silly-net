@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-service
+  namespace: snet
+
+spec:
+  type: NodePort
+  ports:
+  - name: http-grafana
+    port: 3100
+    targetPort: http-grafana
+    nodePort: 30004
