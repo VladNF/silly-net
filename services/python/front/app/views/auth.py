@@ -4,12 +4,11 @@ from calendar import timegm
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
 
 from app import settings as s
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 
 def make_new_token(user_id, **claims) -> str:
@@ -35,14 +34,6 @@ def decode_token(t: str):
         raise ValueError("invalid token") from err
 
     return Claims(**p)
-
-
-def make_password_hash(password):
-    return pwd_context.hash(password)
-
-
-def verify_password(password, pwd_hash):
-    return pwd_context.verify(password, pwd_hash)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):

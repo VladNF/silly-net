@@ -86,61 +86,39 @@ spec:
             - postgres
           initialDelaySeconds: 5
           timeoutSeconds: 1
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: pg-exporter
-  namespace: snet
-  labels:
-    app: pg-exporter
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: pg-exporter
-  template:
-    metadata:
-      labels:
-        app: pg-exporter
-    spec:
-      containers:
-        - name: pg-exporter
-          image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
-          ports:
-            - name: pg-exporter
-              containerPort: 9187
+      - name: pg-exporter
+        image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+        ports:
+          - name: pg-exporter
+            containerPort: 9187
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        readinessProbe: # readiness probes mark the service available to accept traffic.
+          httpGet:
+            path: /readiness
+            port: 9187
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 2
+        livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
+          httpGet:
+            path: /liveness
+            port: 9187
+          initialDelaySeconds: 2
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 2
 
-          resources:
-            requests:
-              cpu: 100m
-            limits:
-              cpu: 500m
-              memory: 1Gi
-
-          readinessProbe: # readiness probes mark the service available to accept traffic.
-            httpGet:
-              path: /readiness
-              port: 9187
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 5
-            successThreshold: 1
-            failureThreshold: 2
-
-          livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
-            httpGet:
-              path: /liveness
-              port: 9187
-            initialDelaySeconds: 2
-            periodSeconds: 5
-            timeoutSeconds: 5
-            successThreshold: 1
-            failureThreshold: 2
-
-          env:
-            - name: DATA_SOURCE_NAME
-              value: "postgresql://postgres:postgres@db-service:5432/snet?sslmode=disable"
+        env:
+          - name: DATA_SOURCE_NAME
+            value: "postgresql://postgres:postgres@localhost:5432/snet?sslmode=disable"
 ---
 apiVersion: v1
 kind: Service
@@ -155,20 +133,9 @@ spec:
   - name: postgres
     port: 5432
     targetPort: postgres
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: pg-exp-service
-  namespace: snet
-spec:
-  type: ClusterIP
-  selector:
-    app: pg-exporter
-  ports:
   - name: pg-exporter
     port: 9187
-    targetPort: pg-exporter
+    targetPort: pg-exporter  
 ---
 apiVersion: v1
 kind: ConfigMap

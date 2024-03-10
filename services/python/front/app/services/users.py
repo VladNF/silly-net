@@ -1,5 +1,9 @@
+from passlib.context import CryptContext
+
 from ..models.users import User
 from ..repo.users import users_repo
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def get_user(user_id: str) -> User:
@@ -25,3 +29,11 @@ async def create_user(email, first_name, last_name, age, bio, city, pwd_hash) ->
 
 async def search_users(first_name, last_name, limit, offset) -> list[User]:
     return await users_repo.get_multi(first_name, last_name, limit, offset)
+
+
+def make_password_hash(password):
+    return pwd_context.hash(password)
+
+
+def verify_password(password, pwd_hash):
+    return pwd_context.verify(password, pwd_hash)

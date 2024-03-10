@@ -18,27 +18,22 @@ class User(BaseModel):
 
 class Repository(metaclass=ABCMeta):
     @abstractmethod
-    async def get(self, user_id: str) -> User:
-        raise NotImplementedError
+    async def get(self, user_id: str) -> User | None: ...
 
     @abstractmethod
-    async def get_by_email(self, email: str) -> User:
-        raise NotImplementedError
+    async def get_by_email(self, email: str) -> User | None: ...
 
     @abstractmethod
     async def get_multi(
         self,
         first_name: str = None,
         last_name: str = None,
-        limit: int = 0,
-        offset: int = 20,
-    ) -> list[User]:
-        raise NotImplementedError
+        limit: int = 20,
+        offset: int = 0,
+    ) -> list[User]: ...
 
     @abstractmethod
-    async def put(self, user: User):
-        raise NotImplementedError
+    async def put(self, user: User) -> User: ...
 
     @abstractmethod
-    async def put_multi(self, users: list[User]):
-        raise NotImplementedError
+    async def put_multi(self, users: list[User]) -> None: ...

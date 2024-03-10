@@ -4,7 +4,7 @@ env = Env()
 env.read_env()
 
 db_user = env.str("POSTGRES_USER", "postgres")
-db_password = env.str("POSTGRES_PASSWORD", "example")
+db_password = env.str("POSTGRES_PASSWORD", "postgres")
 db_name = env.str("POSTGRES_DB", "snet")
 db_host = env.str("POSTGRES_HOST", "localhost")
 db_port = env.int("POSTGRES_PORT", 5432)

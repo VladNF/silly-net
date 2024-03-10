@@ -3,8 +3,7 @@ from typing import List, Optional
 from fastapi import HTTPException
 
 from app.services import users
-
-from .auth import make_new_token, make_password_hash, verify_password
+from .auth import make_new_token
 from .models import ListUsersRequest, LoginRequest, LoginResponse, SignUpRequest, SignUpResponse, User
 
 
@@ -14,7 +13,7 @@ async def user_login(body: LoginRequest = None) -> LoginResponse:
             status_code=400, detail=f"user with email {body.email} was not found"
         )
 
-    if not verify_password(body.password.get_secret_value(), user.pwd_hash):
+    if not users.verify_password(body.password.get_secret_value(), user.pwd_hash):
         raise HTTPException(status_code=401)
 
     return LoginResponse(token=make_new_token(user_id=user.user_id))
@@ -33,7 +32,7 @@ async def user_sign_up(body: SignUpRequest = None) -> SignUpResponse:
         body.age,
         body.bio,
         body.city,
-        make_password_hash(body.password.get_secret_value()),
+        users.make_password_hash(body.password.get_secret_value()),
     )
     return SignUpResponse(**user.dict(), token=make_new_token(user_id=user.user_id))
 

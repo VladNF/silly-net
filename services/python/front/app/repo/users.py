@@ -78,8 +78,8 @@ class UsersRepo(Repository):
         self,
         first_name: str = None,
         last_name: str = None,
-        limit: int = 0,
-        offset: int = 20,
+        limit: int = 20,
+        offset: int = 0,
     ) -> list[User]:
         where_builder = WhereBuilder(var_index=3)
         where_builder.with_fields_prefix(first_name=first_name, last_name=last_name)

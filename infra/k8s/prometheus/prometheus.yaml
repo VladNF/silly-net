@@ -27,7 +27,7 @@ data:
         scrape_interval: 5s
         scrape_timeout: 2s
         static_configs:
-          - targets: [ "pg-exp-service.snet.svc:9187" ]
+          - targets: [ "db-service.snet.svc:9187" ]
       - job_name: "node-exporter"
         metrics_path: '/metrics'
         scrape_interval: 5s
@@ -61,7 +61,7 @@ spec:
             - "--storage.tsdb.retention.time=1m"
             - "--config.file=/prom-conf/prometheus.yaml"
             - "--storage.tsdb.path=/prometheus/"
-            - "--log.level=debug"
+            - "--log.level=info"
           ports:
             - name: prometheus
               containerPort: 9090
