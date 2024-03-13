@@ -42,12 +42,14 @@ class UsersMockRepo(Repository):
 
 @pytest_asyncio.fixture(autouse=True)
 async def _in_mem_repo(request, mocker):
-    """Implement the use_db marker"""
+    """Implement the in_mem_repo marker"""
     marker = request.node.get_closest_marker("in_mem_repo")
     if not marker:
         return
 
-    mocker.patch("app.services.users.users_repo", UsersMockRepo())
+    repo = UsersMockRepo()
+    mocker.patch("app.services.users.users_repo", repo)
+    mocker.patch("app.services.users.users_repo_ro", repo)
 
 
 def pytest_configure(config):

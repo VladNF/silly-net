@@ -23,7 +23,7 @@ spec:
       containers:
         - name: load-agent
           image: load-agent-image
-          command: ["locust", "-f", "load.py", "-H", "http://$(FRONT_HOST):$(FRONT_PORT)"]
+          command: ["locust", "--class-picker", "-f", "load.py", "-H", "http://$(FRONT_HOST):$(FRONT_PORT)"]
           ports:
             - name: load-agent
               containerPort: 9090
@@ -69,6 +69,54 @@ spec:
                   name: app-config
                   key: front_port
                   optional: true
+        - name: load-agent-2
+          image: load-agent-image
+          command: ["locust", "--class-picker", "-f", "load.py", "-H", "http://$(FRONT_HOST):$(FRONT_PORT)"]
+          ports:
+            - name: load-agent-2
+              containerPort: 9091
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          
+          readinessProbe: # readiness probes mark the service available to accept traffic.
+            httpGet:
+              path: /
+              port: 9091
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+
+          livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
+            httpGet:
+              path: /
+              port: 9091
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+
+          env:
+            - name: LOCUST_WEB_PORT
+              value: "9091"
+            - name: FRONT_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: front_host
+                  optional: true
+            - name: FRONT_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: front_port
+                  optional: true
 ---
 apiVersion: v1
 kind: Service
@@ -82,3 +130,6 @@ spec:
     - name: load-agent
       port: 9090
       targetPort: load-agent
+    - name: load-agent-2
+      port: 9091
+      targetPort: load-agent-2

@@ -11,3 +11,7 @@ spec:
     port: 9090
     targetPort: load-agent
     nodePort: 30003
+  - name: load-agent-2
+    port: 9091
+    targetPort: load-agent
+    nodePort: 30005

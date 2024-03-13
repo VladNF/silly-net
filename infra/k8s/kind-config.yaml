@@ -12,6 +12,8 @@ nodes:
   # Load Agent
   - containerPort: 30003
     hostPort: 9090
+  - containerPort: 30005
+    hostPort: 9091
   # Grafana
   - containerPort: 30004
     hostPort: 3100

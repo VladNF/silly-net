@@ -14,7 +14,7 @@ def random_search_term():
     return "".join(chars)
 
 
-class SNetUser(HttpUser):
+class ReadOnlyLoad(HttpUser):
     wait_time = between(1, 2)
 
     def on_start(self):
@@ -41,3 +41,24 @@ class SNetUser(HttpUser):
             f"/users/?first_name={random_search_term()}&last_name={random_search_term()}",
             name="search",
         )
+
+
+class WriteOnlyLoad(HttpUser):
+    wait_time = between(1, 2)
+
+    @task
+    def sign_up(self):
+        r = self.client.post(
+            "/auth/signup",
+            json={
+                "email": f"{uuid.uuid4().hex}@VladNF.ru",
+                "first_name": "Vlad",
+                "last_name": "NF",
+                "age": 42,
+                "bio": "somewhere in the deep space",
+                "city": "NF",
+                "password": "424242",
+            },
+            name="signup",
+        )
+        assert r.ok

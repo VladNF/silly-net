@@ -3,3 +3,4 @@ RUN apk add gcc python3-dev musl-dev linux-headers
 RUN pip install locust==2.15.0
 COPY ./services/python/load_agent /load_agent
 WORKDIR /load_agent
+ENTRYPOINT [ "locust", "--class-picker", "-f", "load.py", "-H", "http://localhost:30001" ]
