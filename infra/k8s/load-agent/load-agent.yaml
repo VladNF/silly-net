@@ -129,7 +129,7 @@ spec:
   ports:
     - name: load-agent
       port: 9090
-      targetPort: load-agent
+      targetPort: 9090
     - name: load-agent-2
       port: 9091
-      targetPort: load-agent-2
+      targetPort: 9091

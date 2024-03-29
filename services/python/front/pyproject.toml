@@ -13,6 +13,7 @@ uvicorn = {extras = ["standard"], version = "^0.20.0"}
 environs = "^9.5.0"
 asyncpg = "^0.27.0"
 pyjwt = "^2.6.0"
+bcrypt = "~4.0.1"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pydantic = {extras = ["email"], version = "^2.6.1"}
 prometheus-client = "^0.20.0"

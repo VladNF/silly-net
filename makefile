@@ -19,6 +19,8 @@ LOKI            := grafana/loki:2.9.0
 PROMTAIL        := grafana/promtail:2.9.0
 PG-EXPORTER     := quay.io/prometheuscommunity/postgres-exporter:v0.15.0
 NODE-EXPORTER   := quay.io/prometheus/node-exporter:v1.7.0
+POD-EXPORTER    := registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.11.0
+CADVISOR    	:= gcr.io/cadvisor/cadvisor:v0.45.0
 
 KIND_CLUSTER    := snet
 NAMESPACE       := snet
@@ -56,6 +58,8 @@ pull-images:
 	docker pull $(PROMTAIL)
 	docker pull $(PG-EXPORTER)
 	docker pull $(NODE-EXPORTER)
+	docker pull $(POD-EXPORTER)
+	docker pull $(CADVISOR)
 
 
 # ==============================================================================
@@ -106,6 +110,8 @@ k8s-up: pull-images
 	kind load docker-image $(PROMTAIL) --name $(KIND_CLUSTER)
 	kind load docker-image $(PG-EXPORTER) --name $(KIND_CLUSTER)
 	kind load docker-image $(NODE-EXPORTER) --name $(KIND_CLUSTER)
+	kind load docker-image $(POD-EXPORTER) --name $(KIND_CLUSTER)
+	kind load docker-image $(CADVISOR) --name $(KIND_CLUSTER)
 
 k8s-down:
 	kind delete cluster --name $(KIND_CLUSTER)
@@ -152,7 +158,7 @@ app-rollback:
 	kubectl wait jobs --namespace=$(NAMESPACE) --selector app=db-rollback-job  --timeout=300s --for=condition=complete
 	kubectl logs jobs/db-rollback-job -n snet
 
-app-restart:
+app-restart-front:
 	kubectl rollout restart deployment $(APP_FRONT) --namespace=$(NAMESPACE)
 
 update: build-images app-load app-restart

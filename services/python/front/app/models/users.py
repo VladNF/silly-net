@@ -11,7 +11,7 @@ class User(BaseModel):
     first_name: str = f(default=None)
     last_name: str = f(default=None)
     age: int = f(default=None)
-    bio: str = f(default=None)
+    bio: str | None = f(default=None)
     city: str = f(default=None)
     pwd_hash: str = f(default=None)
 

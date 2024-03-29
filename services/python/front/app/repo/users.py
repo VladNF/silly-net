@@ -2,16 +2,17 @@ import time
 from contextlib import asynccontextmanager
 
 import asyncpg as pg
-from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Gauge, Histogram
 
 from app import settings as s
 from app.models.users import Repository, User
 from app.repo.query import InsertBuilder, WhereBuilder
 
 # Metrics
-req_count_metric = Counter("snet_db_requests", "HTTP API Requests", ["method", "dsn"])
-req_failed_metric = Counter("snet_db_requests_failed", "HTTP API Requests Failed", ["method", "dsn"])
-req_time_metric = Histogram("snet_db_request_time", "HTTP API Requests Timing", ["method", "dsn"])
+req_conn_count_metric = Gauge("snet_db_connections", "DB Connections", ["dsn"])
+req_count_metric = Counter("snet_db_requests", "DB Requests", ["method", "dsn"])
+req_failed_metric = Counter("snet_db_requests_failed", "DB Requests Failed", ["method", "dsn"])
+req_time_metric = Histogram("snet_db_request_time", "DB Requests Timing", ["method", "dsn"])
 
 
 def from_db_model(r: pg.Record) -> User | None:
@@ -59,7 +60,7 @@ class UsersRepo(Repository):
 
     async def get_pg_pool(self) -> pg.Pool:
         if not self.pool:
-            self.pool = await pg.create_pool(self.dsn, min_size=0, max_size=50, command_timeout=5)
+            self.pool = await pg.create_pool(self.dsn, min_size=0, max_size=100, command_timeout=5)
         return self.pool
     
     @asynccontextmanager
@@ -68,6 +69,7 @@ class UsersRepo(Repository):
         pool = await self.get_pg_pool()
         try:
             async with pool.acquire() as c:
+                req_conn_count_metric.labels(dsn=labels["dsn"]).set(pool.get_size())
                 yield c
         except Exception:
             req_failed_metric.labels(**labels).inc()

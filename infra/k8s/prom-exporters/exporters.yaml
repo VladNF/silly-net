@@ -3,6 +3,58 @@ kind: Namespace
 metadata:
   name: snet
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-exporter
+  namespace: snet
+  labels:
+    app: node-exporter
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources:
+  - ingresses
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+  - daemonsets
+  - statefulsets
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: node-exporter
+  namespace: snet
+  labels:
+    app: node-exporter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: node-exporter
+subjects:
+- kind: ServiceAccount
+  name: node-exporter
+  namespace: snet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-exporter
+  namespace: snet
+  labels:
+    app: node-exporter
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -21,6 +73,7 @@ spec:
       labels:
         app: node-exporter
     spec:
+      serviceAccountName: node-exporter
       containers:
         - args:
             - --web.listen-address=0.0.0.0:9100
@@ -32,7 +85,7 @@ spec:
           ports:
             - containerPort: 9100
               hostPort: 9100
-              name: metrics
+              name: node-metrics
               protocol: TCP
           resources:
             limits:
@@ -48,6 +101,22 @@ spec:
             - mountPath: /host/sys
               name: sys
               readOnly: true
+        - image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.11.0
+          name: kube-state-metrics
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              name: pod-metrics
+              protocol: TCP
+          args:
+          - --resources=pods,nodes
+          - --node=$(NODE_NAME)
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
       hostNetwork: true
       hostPID: true
       restartPolicy: Always
@@ -79,6 +148,10 @@ spec:
       port: 9100
       protocol: TCP
       targetPort: 9100
+    - name: pod-exporter
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
   selector:
     app: node-exporter
   sessionAffinity: None

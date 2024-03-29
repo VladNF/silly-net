@@ -35,12 +35,23 @@ class ReadOnlyLoad(HttpUser):
         token = r.json()["token"]
         self.client.headers = {"Authorization": f"Bearer {token}"}
 
-    @task
+    @task(1)
     def search_people(self):
         self.client.get(
             f"/users/?first_name={random_search_term()}&last_name={random_search_term()}",
             name="search",
         )
+
+    @task(3)
+    def search_get_people(self):
+        def get_people_list(char: str) -> list[str]:
+            batch = self.client.get(
+                f"/users/?first_name={char}&limit=20", name="search"
+            ).json()
+            return [r["user_id"] for r in batch]
+
+        for user_id in get_people_list(random.choice(RU_SYMBOLS)):
+            self.client.get(f"/users/{user_id}", name="get_user")
 
 
 class WriteOnlyLoad(HttpUser):
